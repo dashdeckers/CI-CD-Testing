@@ -1,1 +1,1 @@
-"""Init module."""
+"""Init module docstring."""

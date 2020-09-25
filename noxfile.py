@@ -2,13 +2,6 @@
 import nox
 from nox.sessions import Session
 
-# TODO:
-
-# Use branches and restrict master so its not possible to merge failing
-# Readthedocs generation and xdoctest example testing
-### https://cjolowicz.github.io/posts/hypermodern-python-05-documentation/#running-documentation-examples-with-xdoctest  # noqa
-
-
 # Reuse virtualenvs to allow working offline
 nox.options.envdir = ".nox_cache"
 nox.options.reuse_existing_virtualenvs = True
@@ -30,22 +23,20 @@ linter_installs = [
     "mccabe==0.6.1",                # code complexity
     "pyflakes==2.2.0",
 ]
-linter_ignores = [f"--ignore={code}" for code in [
-    "D100",  # 'Missing docstring in ... public module'
-    # "D101",  # '... public class'
-    # "D102",  # '... public method'
-    # "D103",  # '... public function'
-    # "D104",  # '... public package'
-    # "D105",  # '... magic method'
-    "D106",  # '... public nested class'
-    "D107",  # '... __init__'
+linter_ignores = [
     "D202",  # 'No blank lines allowed after function docstring'
     "D203",  # '1 blank line required before class docstring'
     "D213",  # 'Multi-line docstrings should start at the second line'
     "D415",  # 'First line should end with one of [".", "?", "!"]'
     "I202",  # 'Additional newline in a group of imports'
-]]
+    "W503",  # 'line break before operator'
+]
+linter_excludes = [
+    "**/*_test.py",
+    "**/test_*.py",
+]
 linter_args = [
+    "--config=ignore",
     "--import-order-style=google",
     "--docstring-style=google",
     "--max-complexity=10",
@@ -58,8 +49,8 @@ pytype_installs = [
     "pytype==2020.06.01",
 ]
 pytype_excludes = [
-    "--exclude=**/*_test.py",
-    "--exclude=**/test_*.py",
+    "**/*_test.py",
+    "**/test_*.py",
 ]
 pytype_args = [
     "--disable=import-error",
@@ -67,7 +58,9 @@ pytype_args = [
 
 
 # Specify test framework and arguments
-pytest_installs = [
+test_installs = [
+    "xdoctest==0.15.0",
+    "pygments==2.7.1",
     "pytest==5.4.3",
     "pytest-cov==2.10.0",
 ]
@@ -80,7 +73,12 @@ def flake8(session: Session) -> None:
     Args:
         session (Session): Nox session.
     """
-    args = session.posargs or linter_ignores + linter_args + locations
+    args = session.posargs or (
+        ["--ignore=" + ','.join(linter_ignores)]
+        + ["--exclude=" + ','.join(linter_excludes)]
+        + linter_args
+        + locations
+    )
 
     session.install(*linter_installs)
     session.run("flake8", *args)
@@ -93,7 +91,11 @@ def pytype(session: Session) -> None:
     Args:
         session (Session): Nox session.
     """
-    args = session.posargs or pytype_args + locations
+    args = session.posargs or (
+        ["--exclude=" + ','.join(pytype_excludes)]
+        + pytype_args
+        + locations
+    )
 
     session.install(*pytype_installs)
     session.run("pytype", *args)
@@ -106,7 +108,11 @@ def pytest(session: Session) -> None:
     Args:
         session (Session): Nox session.
     """
-    session.install(*pytest_installs)
+    args = session.posargs or locations
+
+    session.install(*test_installs)
+    session.run("python", "-m", "xdoctest", *args)
+
     session.install("-r", "requirements.txt")
     session.run("pytest", "--cov=src/")
 
@@ -125,7 +131,11 @@ def write_setup_cfg() -> None:
 
         setupcfg.write('ignore=\n')
         for arg in linter_ignores:
-            setupcfg.write(f'\t{arg[9:]},\n')
+            setupcfg.write(f'\t{arg},\n')
+
+        setupcfg.write('exclude=\n')
+        for arg in linter_excludes:
+            setupcfg.write(f'\t{arg},\n')
 
         # PyType stuff
         setupcfg.write('\n[pytype]\n')
@@ -134,7 +144,7 @@ def write_setup_cfg() -> None:
 
         setupcfg.write('exclude=\n')
         for arg in pytype_excludes:
-            setupcfg.write(f'\t{arg[10:]},\n')
+            setupcfg.write(f'\t{arg},\n')
 
 
 def write_dev_requirements() -> None:
@@ -144,7 +154,7 @@ def write_dev_requirements() -> None:
     because they have nothing to do with the actual requirements of the program
     """
     with open('dev_requirements.txt', 'w') as devreq:
-        for package in linter_installs + pytype_installs + pytest_installs:
+        for package in linter_installs + pytype_installs + test_installs:
             devreq.write(f'{package}\n')
 
 
