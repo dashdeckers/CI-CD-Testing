@@ -24,6 +24,10 @@ def compute(r: float, y_start: float = 0.5, x_range: int = 100) -> List[float]:
 
     Returns:
         List[float]: The computed y values.
+
+    Example:
+        >>> compute(3, 0.5, 5)
+        [0.5, 0.75, 0.5625, 0.73828125, 0.5796661376953125]
     """
     # This can be optimized with numpy?
     y_vals = [y_start]
@@ -35,7 +39,7 @@ def compute(r: float, y_start: float = 0.5, x_range: int = 100) -> List[float]:
 
 @gif.frame
 def plot(r: float, y_start: float = 0.5, x_range: int = 100) -> None:
-    """Plot function to generate the bifurcation gif.
+    """Plot function to plot the logistic map.
 
     Args:
         r: The parameter to vary.
@@ -45,15 +49,24 @@ def plot(r: float, y_start: float = 0.5, x_range: int = 100) -> None:
     plt.plot(range(x_range), compute(r, y_start, x_range))
 
 
-frames = []
-for r in tqdm(np.linspace(start=0, stop=4.5, num=100)):
-    frames.append(plot(r))
+def main() -> None:
+    """Create the gif.
+
+    Generate a gif showing how the plot of a logistic map changes for
+    parameter values ranging between 0 and 4.5.
+    """
+    frames = []
+    for r in tqdm(np.linspace(start=0, stop=4.5, num=100)):
+        frames.append(plot(r))
+
+    gif.save(
+        frames,
+        'bifurcation.gif',
+        duration=10,
+        unit='s',
+        between='startend'
+    )
 
 
-gif.save(
-    frames,
-    'bifurcation.gif',
-    duration=10,
-    unit='s',
-    between='startend'
-)
+if __name__ == '__main__':
+    main()
