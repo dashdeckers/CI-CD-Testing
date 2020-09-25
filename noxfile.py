@@ -5,6 +5,7 @@ from nox.sessions import Session
 # TODO:
 
 # Use branches and restrict master so its not possible to merge failing
+# Put a coverage badge
 # Readthedocs generation and xdoctest example testing
 ### https://cjolowicz.github.io/posts/hypermodern-python-05-documentation/#running-documentation-examples-with-xdoctest  # noqa
 
@@ -50,6 +51,10 @@ linter_args = [
     "--docstring-style=google",
     "--max-complexity=10",
     "--max-line-length=80",
+]
+linter_excludes = [
+    "--exclude=**/*_test.py",
+    "--exclude=**/test_*.py",
 ]
 
 
@@ -126,6 +131,10 @@ def write_setup_cfg() -> None:
         setupcfg.write('ignore=\n')
         for arg in linter_ignores:
             setupcfg.write(f'\t{arg[9:]},\n')
+
+        setupcfg.write('exclude=\n')
+        for arg in linter_excludes:
+            setupcfg.write(f'\t{arg[10:]},\n')
 
         # PyType stuff
         setupcfg.write('\n[pytype]\n')

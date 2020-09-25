@@ -1,2 +1,5 @@
 eliot
 numpy
+gif
+matplotlib
+tqdm
