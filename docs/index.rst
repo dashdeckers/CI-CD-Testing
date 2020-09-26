@@ -49,4 +49,4 @@ execute the following in your terminal
 
    $ python src/main.py
 
-You can then view the file bifurcation.gif
+You can then view the file src/logistic_map.gif

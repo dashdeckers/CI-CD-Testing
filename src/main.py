@@ -1,4 +1,5 @@
 """Main module docstring."""
+from pathlib import Path
 from typing import List
 
 from eliot import log_call, to_file
@@ -61,7 +62,7 @@ def main() -> None:
 
     gif.save(
         frames,
-        'bifurcation.gif',
+        Path() / 'src' / 'logistic_map.gif',
         duration=10,
         unit='s',
         between='startend'
