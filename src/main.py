@@ -15,7 +15,7 @@ to_file(open('logfile.log', 'w'))
 def compute(r: float, y_start: float = 0.5, x_range: int = 100) -> List[float]:
     """Compute the y values for the logistic map shown below.
 
-    x_n+1 = r * x_n * (1 - x_n)
+    :math:`x_{n+1} = r * x_n * (1 - x_n)`
 
     Args:
         r: The parameter to vary.
