@@ -121,7 +121,19 @@ def test(session: Session) -> None:
     session.run("python", "-m", "xdoctest", *args)
 
     session.install("-r", "requirements.txt")
-    session.run("pytest", "--cov=src/")
+    session.run("pytest", "--cov=src/", "--cov-fail-under=90")
+
+
+@nox.session(python=["3.8"])
+def coverage(session: Session) -> None:
+    """Upload coverage data to CodeCov.
+
+    Args:
+        session (Session): Nox session.
+    """
+    session.install("coverage", "codecov")
+    session.run("coverage", "xml", "--fail-under=0")
+    session.run("codecov", *session.posargs)
 
 
 @nox.session(python=["3.8"])
