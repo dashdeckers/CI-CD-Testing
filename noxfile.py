@@ -8,10 +8,10 @@ nox.options.reuse_existing_virtualenvs = True
 
 
 # Specify which locations to check
-locations = ["src", "tests", "noxfile.py"]
+locations = ["src", "tests", "noxfile.py", "docs/conf.py"]
 
 
-# Specify code linters and arguments
+# Specify the code linter frameworks and arguments
 linter_installs = [
     "flake8==3.8.3",
     "flake8-annotations==2.2.1",    # type hints
@@ -44,7 +44,7 @@ linter_args = [
 ]
 
 
-# Specify static type checker and arguments
+# Specify the static type checker frameworks and arguments
 pytype_installs = [
     "pytype==2020.06.01",
 ]
@@ -57,7 +57,7 @@ pytype_args = [
 ]
 
 
-# Specify test framework and arguments
+# Specify the testing frameworks and arguments
 test_installs = [
     "xdoctest==0.15.0",
     "pygments==2.7.1",
@@ -66,8 +66,15 @@ test_installs = [
 ]
 
 
+# Specify the docs generation framework and arguments
+docs_installs = [
+    "sphinx==3.2.1",
+    "sphinx-autodoc-typehints==1.11.0",
+]
+
+
 @nox.session(python=["3.8"])
-def flake8(session: Session) -> None:
+def lint(session: Session) -> None:
     """Lint using flake8.
 
     Args:
@@ -85,7 +92,7 @@ def flake8(session: Session) -> None:
 
 
 @nox.session(python=["3.8"])
-def pytype(session: Session) -> None:
+def typecheck(session: Session) -> None:
     """Do static type checking with pytype.
 
     Args:
@@ -102,8 +109,8 @@ def pytype(session: Session) -> None:
 
 
 @nox.session(python=["3.6", "3.7", "3.8"])
-def pytest(session: Session) -> None:
-    """Run tests with PyTest.
+def test(session: Session) -> None:
+    """Run tests with PyTest and XDoctest.
 
     Args:
         session (Session): Nox session.
@@ -115,6 +122,18 @@ def pytest(session: Session) -> None:
 
     session.install("-r", "requirements.txt")
     session.run("pytest", "--cov=src/")
+
+
+@nox.session(python=["3.8"])
+def docs(session: Session) -> None:
+    """Build the documentation with Sphinx.
+
+    Args:
+        session (Session): Nox session.
+    """
+    session.install(*docs_installs)
+    session.install("-r", "requirements.txt")
+    session.run("sphinx-build", "docs", "docs/_build")
 
 
 def write_setup_cfg() -> None:
@@ -154,7 +173,11 @@ def write_dev_requirements() -> None:
     because they have nothing to do with the actual requirements of the program
     """
     with open('dev_requirements.txt', 'w') as devreq:
-        for package in linter_installs + pytype_installs + test_installs:
+        for package in (
+                linter_installs
+                + pytype_installs
+                + test_installs
+                + docs_installs):
             devreq.write(f'{package}\n')
 
 
