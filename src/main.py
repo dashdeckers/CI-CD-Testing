@@ -1,7 +1,6 @@
 """Main module docstring."""
 from pathlib import Path
 from typing import List
-import argparse
 
 from eliot import log_call, to_file
 import gif
