@@ -125,6 +125,18 @@ def test(session: Session) -> None:
 
 
 @nox.session(python=["3.8"])
+def coverage(session: Session) -> None:
+    """Upload coverage data to CodeCov.
+
+    Args:
+        session (Session): Nox session.
+    """
+    session.install("coverage", "codecov")
+    session.run("coverage", "xml", "--fail-under=0")
+    session.run("codecov", *session.posargs)
+
+
+@nox.session(python=["3.8"])
 def docs(session: Session) -> None:
     """Build the documentation with Sphinx.
 
