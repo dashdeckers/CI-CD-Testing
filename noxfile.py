@@ -125,7 +125,7 @@ def test(session: Session) -> None:
     session.run('python', '-m', 'xdoctest', *args)
 
     session.install('-r', 'requirements.txt')
-    session.run('python', '-m', 'pytest', '--cov=src/', '--cov-fail-under=80')
+    session.run('python', '-m', 'pytest', '--cov=src/', '--cov-fail-under=50')
 
 
 @nox.session(python=['3.8'])

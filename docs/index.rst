@@ -47,7 +47,7 @@ execute the following in your terminal
 
 .. code-block:: console
 
-   $ python src/main.py
+   $ python src/chaos/main.py
 
 You can then view the file src/logistic_map.gif
 

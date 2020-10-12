@@ -122,6 +122,7 @@ def logistic_map_gif(
         stop (float): Final value for r.
         n_frames (int): Number of frames to capture between start and stop.
         gif_duration (int): The duration of the gif to produce in seconds.
+        **kwargs (Any): Possible extra kwargs.
     """
     frames = []
     for r in tqdm(np.linspace(start=start, stop=stop, num=n_frames)):
