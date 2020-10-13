@@ -2,10 +2,10 @@
 import nox
 from nox.sessions import Session
 
-# Reuse virtualenvs to allow working offline
-nox.options.envdir = '.nox_cache'
-nox.options.reuse_existing_virtualenvs = True
 
+# Reuse virtualenvs to allow working offline
+nox.options.envdir = '.nox_cache/'
+nox.options.reuse_existing_virtualenvs = True
 
 # Specify which locations to check
 locations = ['src', 'tests', 'noxfile.py', 'docs/conf.py']
@@ -13,48 +13,33 @@ locations = ['src', 'tests', 'noxfile.py', 'docs/conf.py']
 
 # Specify the code linter frameworks and arguments
 linter_installs = [
-    'flake8==3.8.3',
-    'flake8-annotations==2.2.1',    # type hints
-    'flake8-bandit==2.1.2',         # ?
-    'flake8-bugbear==20.1.4',       # ?
-    'flake8-docstrings==1.5.0',     # same as pydocstyle
-    'flake8-import-order==0.18.1',  # checks for sorted imports
-    'darglint==1.5.1',              # checks docs for argument validity etc
-    'mccabe==0.6.1',                # code complexity
-    'pyflakes==2.2.0',
+    'flake8',
+    'flake8-annotations',    # type hints and annotations
+    'flake8-docstrings',     # same as pydocstyle
+    'darglint',              # checks docs for argument validity etc
+    'mccabe',                # code complexity
 ]
 linter_ignores = [
-    'D202',  # 'No blank lines allowed after function docstring'
-    'D203',  # '1 blank line required before class docstring'
-    'D213',  # 'Multi-line docstrings should start at the second line'
-    'D415',  # 'First line should end with one of ['.', '?', '!']'
-    'I202',  # 'Additional newline in a group of imports'
-    'I001',  # 'Import in the wrong position'
-    'I003',  # 'Expected 1 blank line in imports, found 0'
-    'I004',  # 'Unexpected blank line in imports'
-    'I100',  # 'Import statements are in the wrong order'
-    'W503',  # 'line break before operator'
+    'I',     # Any import related complaints
+    'W503',  # 'line break before binary operator'
 ]
 linter_excludes = [
-    '**/*_test.py',
-    '**/test_*.py',
+    'tests/',
 ]
 linter_args = [
-    '--config=ignore',
-    '--import-order-style=google',
+    # '--config=ignore',
     '--docstring-style=google',
-    '--max-complexity=10',
+    '--max-complexity=5',
     '--max-line-length=80',
 ]
 
 
 # Specify the static type checker frameworks and arguments
 pytype_installs = [
-    'pytype==2020.06.01',
+    'pytype',
 ]
 pytype_excludes = [
-    '**/*_test.py',
-    '**/test_*.py',
+    'tests/',
 ]
 pytype_args = [
     '--disable=import-error',
@@ -63,17 +48,19 @@ pytype_args = [
 
 # Specify the testing frameworks and arguments
 test_installs = [
-    'xdoctest==0.15.0',
-    'pygments==2.7.1',
-    'pytest==5.4.3',
-    'pytest-cov==2.10.0',
+    'pytest',      # run tests
+    'pytest-cov',  # determine test coverage
+]
+doc_test_installs = [
+    'xdoctest',    # check examples in docstrings
+    'pygments',    # colorful terminal output
 ]
 
 
 # Specify the docs generation framework and arguments
 docs_installs = [
-    'sphinx==3.2.1',
-    'sphinx-autodoc-typehints==1.11.0',
+    'sphinx',                    # generate docs automatically
+    'sphinx-autodoc-typehints',  # include typehints in the docs
 ]
 
 
@@ -112,20 +99,35 @@ def typecheck(session: Session) -> None:
     session.run('pytype', *args)
 
 
-@nox.session(python=['3.6', '3.7', '3.8'])
-def test(session: Session) -> None:
-    """Run tests with PyTest and XDoctest.
+@nox.session(python=['3.8'])
+def test_docs(session: Session) -> None:
+    """Run doctests with XDoctest.
 
     Args:
         session (Session): Nox session.
     """
     args = session.posargs or locations
 
-    session.install(*test_installs)
+    session.install(*doc_test_installs)
     session.run('python', '-m', 'xdoctest', *args)
 
+
+@nox.session(python=['3.8'])
+def test(session: Session) -> None:
+    """Run tests with PyTest.
+
+    Args:
+        session (Session): Nox session.
+    """
+    args = session.posargs or [
+        '--cov=src/',
+        '--cov-fail-under=50',
+        # '--rootdir=src/',
+        # '--ignore=src/main.py'
+    ]
+
     session.install('-r', 'requirements.txt')
-    session.run('python', '-m', 'pytest', '--cov=src/', '--cov-fail-under=50')
+    session.run('python', '-m', 'pytest', *args)
 
 
 @nox.session(python=['3.8'])
@@ -135,9 +137,16 @@ def coverage(session: Session) -> None:
     Args:
         session (Session): Nox session.
     """
+    # TODO: Make it an environment variable
+    TOKEN = vars().get('CODECOV_TOKEN')
+    if TOKEN:
+        args = ['-t', TOKEN]
+    else:
+        args = session.posargs
+
     session.install('coverage', 'codecov')
     session.run('coverage', 'xml', '--fail-under=0')
-    session.run('codecov', *session.posargs)
+    session.run('codecov', *args)
 
 
 @nox.session(python=['3.8'])
