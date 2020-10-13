@@ -29,7 +29,7 @@ linter_excludes = [
 linter_args = [
     # '--config=ignore',
     '--docstring-style=google',
-    '--max-complexity=5',
+    '--max-complexity=8',
     '--max-line-length=80',
 ]
 
@@ -137,16 +137,9 @@ def coverage(session: Session) -> None:
     Args:
         session (Session): Nox session.
     """
-    # TODO: Make it an environment variable
-    TOKEN = vars().get('CODECOV_TOKEN')
-    if TOKEN:
-        args = ['-t', TOKEN]
-    else:
-        args = session.posargs
-
     session.install('coverage', 'codecov')
     session.run('coverage', 'xml', '--fail-under=0')
-    session.run('codecov', *args)
+    session.run('codecov', *session.posargs)
 
 
 @nox.session(python=['3.8'])
