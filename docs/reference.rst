@@ -5,9 +5,15 @@ Reference
     :local:
 
 
-src.main
+src.chaos
 --------------------------
 
+src.chaos.functions
+^^^^^^^^^^^^^^^^^^^
+.. automodule:: src.chaos.functions
+   :members:
 
-.. automodule:: src.main
+src.chaos.plot
+^^^^^^^^^^^^^^^^^^^
+.. automodule:: src.chaos.plot
    :members:
