@@ -126,6 +126,7 @@ def test(session: Session) -> None:
         # '--ignore=src/main.py'
     ]
 
+    session.install(*test_installs)
     session.install('-r', 'requirements.txt')
     session.run('python', '-m', 'pytest', *args)
 
