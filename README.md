@@ -3,3 +3,8 @@
 
 # CI-CD-Testing
 Test ground for implementing CI/CD, best practice enforcing, and general meta-python stuff.
+
+The dummy project shows some chaos using the logistic map:
+
+<div><img src="src/logistic_map.gif" style='width: 100%'></div>
+<div><img src="src/bifurcation_diagram.png" style='width: 100%'></div>

@@ -57,6 +57,8 @@ def plot_sequential(
 
     plt.plot(range(n_values), y_values)
     plt.ylim(0, 1)
+    plt.xlabel('i')
+    plt.ylabel('x(i)')
     plt.title(f'Sequential plot for {func.__name__}')
 
     if show:
@@ -96,7 +98,10 @@ def plot_bifurcation(
             plt.plot(r, x, ',k', alpha=0.25)
 
     plt.xlim(r_start, r_stop)
+    plt.xlabel('r')
+    plt.ylabel('x')
     plt.title(f'Bifurcation Diagram for {func.__name__}')
+    plt.savefig(Path() / 'src' / 'bifurcation_diagram.png')
 
     if show:
         plt.show()
